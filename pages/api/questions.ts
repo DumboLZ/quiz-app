@@ -8,16 +8,29 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
   const dir = path.join(process.cwd(), 'data')
 
-  // 支持两种命名：chapter${id}.json  或 question_*_${id}.json
-  const files = fs.readdirSync(dir)
-    .filter(f => f.endsWith('.json') && f !== 'chapter_titles.json')
+  // 递归收集文件
+  const collectFiles = (d: string): string[] => {
+    const list: string[] = []
+    fs.readdirSync(d, { withFileTypes: true }).forEach(ent => {
+      const full = path.join(d, ent.name)
+      if (ent.isDirectory()) {
+        list.push(...collectFiles(full))
+      } else if (ent.isFile() && ent.name.endsWith('.json') && ent.name !== 'chapter_titles.json') {
+        list.push(full)
+      }
+    })
+    return list
+  }
+
+  const files = collectFiles(dir)
+  const base = (p: string) => path.basename(p)
   const target = files.find(f =>
-    f === `chapter${chapter}.json` || new RegExp(`question_.*_${chapter}\\.json`).test(f)
+    base(f) === `chapter${chapter}.json` || new RegExp(`question_.*_${chapter}\\.json`).test(base(f))
   )
 
   if (!target) return res.status(404).json({ error: 'not found' })
 
-  const raw = fs.readFileSync(path.join(dir, target), 'utf8')
+  const raw = fs.readFileSync(target, 'utf8')
   const data = JSON.parse(raw)
 
   let title = `章节 ${chapter}`
