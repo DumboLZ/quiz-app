@@ -49,7 +49,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     // 新格式
     questions = data.map((item: any) => {
       const q = JSON.parse(item.QuestionJson)
-      const opts = q.Option.map((o: any) => o.content)
+      const opts = q.Option.map((o: any) => `${o.lable ?? ''}${o.lable ? '. ' : ''}${o.content}`)
       const answerIdx = q.Option.findIndex((o: any) => String(o.truefalse) === 'true')
       return {
         id: item.ID,
