@@ -69,7 +69,9 @@ export default function Quiz() {
       ) : (
         <>
           <h1 className="text-xl font-bold">{title}</h1>
-          {!finished && (
+          {questions.length === 0 ? (
+            <p>此章节暂无题目</p>
+          ) : !finished && (
             <>
               {(() => {
                 const q = questions[current]
