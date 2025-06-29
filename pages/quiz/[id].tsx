@@ -44,15 +44,6 @@ export default function Quiz() {
     return q && answers[q.id] === q.answer
   }).length
 
-  if (!loading && questions.length === 0) {
-    return (
-      <main className="p-6">
-        <h1 className="text-xl font-bold">{title}</h1>
-        <p>此章节暂无题目</p>
-      </main>
-    )
-  }
-
   React.useEffect(() => {
     if (loading || !submitted || finished || questions.length === 0) return
     const q = questions[current]
