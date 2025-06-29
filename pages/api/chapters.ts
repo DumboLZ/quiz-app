@@ -9,6 +9,15 @@ export default function handler(_req: NextApiRequest, res: NextApiResponse) {
   }
   const files = fs.readdirSync(dir).filter(f => f.endsWith('.json'))
 
+  // 允许用户在 data/chapter_titles.json 中自定义章节名称映射 { "35048": "消化系统基础" }
+  let titleMap: Record<string, string> = {}
+  const mapFile = path.join(dir, 'chapter_titles.json')
+  if (fs.existsSync(mapFile)) {
+    try {
+      titleMap = JSON.parse(fs.readFileSync(mapFile, 'utf8'))
+    } catch {}
+  }
+
   const chapters = files.map(file => {
     const content = fs.readFileSync(path.join(dir, file), 'utf8')
 
@@ -37,6 +46,11 @@ export default function handler(_req: NextApiRequest, res: NextApiResponse) {
       }
     } catch (e) {
       // ignore parse errors for mis-formatted file
+    }
+
+    // 使用映射表覆盖标题（若存在）
+    if (titleMap[id]) {
+      title = titleMap[id]
     }
 
     return { id, title, total }

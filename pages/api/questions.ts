@@ -22,6 +22,15 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   let title = `章节 ${chapter}`
   let questions: any[] = []
 
+  // 读取章节标题映射
+  const mapFile = path.join(dir, 'chapter_titles.json')
+  let titleMap: Record<string, string> = {}
+  if (fs.existsSync(mapFile)) {
+    try {
+      titleMap = JSON.parse(fs.readFileSync(mapFile, 'utf8'))
+    } catch {}
+  }
+
   if (Array.isArray(data)) {
     // 新格式
     questions = data.map((item: any) => {
@@ -38,6 +47,11 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   } else {
     title = data.title || title
     questions = data.questions || []
+  }
+
+  // 覆盖映射表中的标题
+  if (titleMap[chapter as string]) {
+    title = titleMap[chapter as string]
   }
 
   res.status(200).json({ title, questions })
