@@ -9,7 +9,8 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   const dir = path.join(process.cwd(), 'data')
 
   // 支持两种命名：chapter${id}.json  或 question_*_${id}.json
-  const files = fs.readdirSync(dir).filter(f => f.endsWith('.json'))
+  const files = fs.readdirSync(dir)
+    .filter(f => f.endsWith('.json') && f !== 'chapter_titles.json')
   const target = files.find(f =>
     f === `chapter${chapter}.json` || new RegExp(`question_.*_${chapter}\\.json`).test(f)
   )

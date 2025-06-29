@@ -7,7 +7,8 @@ export default function handler(_req: NextApiRequest, res: NextApiResponse) {
   if (!fs.existsSync(dir)) {
     return res.status(200).json([])
   }
-  const files = fs.readdirSync(dir).filter(f => f.endsWith('.json'))
+  const files = fs.readdirSync(dir)
+    .filter(f => f.endsWith('.json') && f !== 'chapter_titles.json')
 
   // 允许用户在 data/chapter_titles.json 中自定义章节名称映射 { "35048": "消化系统基础" }
   let titleMap: Record<string, string> = {}
