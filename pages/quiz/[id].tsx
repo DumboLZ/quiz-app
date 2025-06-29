@@ -41,13 +41,13 @@ export default function Quiz() {
   }).length
 
   React.useEffect(() => {
-    if (!submitted) return
+    if (!submitted || finished) return
     const q = questions[current]
-    if (answers[q.id] === q.answer) {
+    if (q && answers[q.id] === q.answer) {
       const t = setTimeout(handleNext, 1000)
       return () => clearTimeout(t)
     }
-  }, [submitted, current])
+  }, [submitted, current, finished])
 
   return (
     <main className="p-6 space-y-6">
@@ -89,7 +89,7 @@ export default function Quiz() {
           {!submitted && (
             <button
               className="px-4 py-2 bg-blue-600 text-white rounded mt-4"
-              disabled={answers[questions[current].id] === undefined}
+              disabled={questions.length === 0 || answers[questions[current].id] === undefined}
               onClick={handleSubmit}
             >提交</button>
           )}
