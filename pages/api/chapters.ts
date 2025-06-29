@@ -7,8 +7,22 @@ export default function handler(_req: NextApiRequest, res: NextApiResponse) {
   if (!fs.existsSync(dir)) {
     return res.status(200).json([])
   }
-  const files = fs.readdirSync(dir)
-    .filter(f => f.endsWith('.json') && f !== 'chapter_titles.json')
+
+  // 递归收集所有 json 题库文件（排除 chapter_titles.json）
+  const collectFiles = (d: string): string[] => {
+    const list: string[] = []
+    fs.readdirSync(d, { withFileTypes: true }).forEach(ent => {
+      const full = path.join(d, ent.name)
+      if (ent.isDirectory()) {
+        list.push(...collectFiles(full))
+      } else if (ent.isFile() && ent.name.endsWith('.json') && ent.name !== 'chapter_titles.json') {
+        list.push(full)
+      }
+    })
+    return list
+  }
+
+  const files = collectFiles(dir)
 
   // 允许用户在 data/chapter_titles.json 中自定义章节名称映射 { "35048": "消化系统基础" }
   let titleMap: Record<string, string> = {}
@@ -20,7 +34,7 @@ export default function handler(_req: NextApiRequest, res: NextApiResponse) {
   }
 
   const chapters = files.map(file => {
-    const content = fs.readFileSync(path.join(dir, file), 'utf8')
+    const content = fs.readFileSync(file, 'utf8')
 
     let id = 0
     let title = file.replace(/\.json$/, '')
